@@ -1,0 +1,33 @@
+#!/bin/bash
+# Using this script you can easily switch between your installed Qt versions
+# This script is intended to be used on ArchLinux with the compiled Qt versions of the following qt pkgbuilds: http://github.com/friesoft/archlinux-friesoft-pkgbuilds/tree/master
+# Copyleft Bernhard Friedreich (friesoft), 2009
+# Usage: source ./qt-switcher
+
+# all of those versions could be installed in /usr (default install) (only one of this sort) or in /opt - the versions are named like the folderstructure in /opt
+supported_versions=(
+    "qt-stable-4.5"
+    "qt-stable-4.6"
+    "qt-unstable"
+    "qt-experimental/kinetic"
+    "qt-experimental/kinetic-declarative"
+)
+
+function listQtVersions
+{
+    echo "The following Qt versions are installed on your system:"
+    echo "    (1) Default path (/usr)"
+}
+
+function switchQtVersion
+{
+    echo "switching qt version to kinetic-declarative"
+
+    export PATHSAVE="$PATH"
+    export LDSAVE="$LD_LIBRARY_PATH"
+    export QTDIR="/opt/qt-experimental/kinetic-declarative"
+    export PATH="$QTDIR/bin:$PATHSAVE"
+    export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+}
+
+switchQtVersion
