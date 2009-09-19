@@ -1,0 +1,19 @@
+WHAT'S THIS ABOUT?
+------------------------------
+Qt switcher is intended to be used by all those having installed multiple Qt versions from my pkgbuilds.
+Those packagebuilds can be found either in my repository or (soon) in the AUR (Arch User Repository)
+
+Sooner or later qt-switcher will provide a bridge to make it possible to install a not installed qt version
+via talking to yaourt and list only those qt versions which are installed on your system.
+
+HOWTO USE?
+------------------------------
+
+Start qt-switcher using
+
+(IMPLEMENTED) source qt-switcher
+source qt-switcher "qt-version-name"
+source qt-switcher --help
+
+
+

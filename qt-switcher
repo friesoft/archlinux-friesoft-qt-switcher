@@ -15,19 +15,52 @@ supported_versions=(
 
 function listQtVersions
 {
-    echo "The following Qt versions are installed on your system:"
+    echo "The following Qt versions can be choosen - Please make sure the one you choose is installed, otherwise it won't work!"
     echo "    (1) Default path (/usr)"
+    echo "    (2) Qt Stable 4.5"
+    echo "    (3) Qt Stable 4.6"
+
+    echo "Qt version: "
+    read key
+    
+    switchQtVersion key
+    returnvalue=$?
+
+    while [ "$returnvalue" -ne "0" ]
+    do
+        listQtVersions
+    done
 }
 
-function switchQtVersion
+function switchQtVersion()
 {
-    echo "switching qt version to kinetic-declarative"
+    $qttargetversion=""
+    case "$1" in
+        "1")
+            $qttargetversion="Default path (/usr)"
+            ;;
+        "2")
+            $qttargetversion="Qt Stable 4.5"
+            ;;
+        "3")
+            $qttargetversion="Qt Stable 4.6"
+            ;;
+        *)
+            echo "Wrong input! Please try again"
+            return 1
+            ;;
+    esac
+
+    echo "switching qt version to `$qttargetversion`"
 
     export PATHSAVE="$PATH"
     export LDSAVE="$LD_LIBRARY_PATH"
     export QTDIR="/opt/qt-experimental/kinetic-declarative"
     export PATH="$QTDIR/bin:$PATHSAVE"
     export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+
+    return
 }
 
-switchQtVersion
+listQtVersions
+

@@ -1,4 +1,5 @@
 commandline arguments
 detect which qt versions are installed
+call yaourt to install currently not installed qt packages
 accept input about the qt version to use
 
