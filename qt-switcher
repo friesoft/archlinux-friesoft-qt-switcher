@@ -4,63 +4,151 @@
 # Copyleft Bernhard Friedreich (friesoft), 2009
 # Usage: source ./qt-switcher
 
-# all of those versions could be installed in /usr (default install) (only one of this sort) or in /opt - the versions are named like the folderstructure in /opt
-supported_versions=(
-    "qt-stable-4.5"
-    "qt-stable-4.6"
-    "qt-unstable"
-    "qt-experimental/kinetic"
-    "qt-experimental/kinetic-declarative"
-)
-
-function listQtVersions
+checkQtInstallations()
 {
-    echo "The following Qt versions can be choosen - Please make sure the one you choose is installed, otherwise it won't work!"
-    echo "    (1) Default path (/usr)"
-    echo "    (2) Qt Stable 4.5"
-    echo "    (3) Qt Stable 4.6"
+    echo -e "\r\nSearching for installed Qt versions via pacman"
+    qtversioncount="1"
 
-    echo "Qt version: "
-    read key
-    
-    switchQtVersion key
+    ######################## DEFAULT INSTALL PATH ########################
+    # search for a qt-stable package which is installed in your default path --> no parallel package
+    default_path=`pacman -Qq | grep -E "^qt-stable*" | grep -v parallel`
+    if [ -n "$default_path" ]; then
+        # No stable package in /usr found - search for unstable
+
+        # search for a qt-unstable package which is installed in your default path --> no parallel package
+        default_path=`pacman -Qq | grep -E "^qt-unstable*" | grep -v parallel`
+        if [ -n "$default_path" ]; then
+            # No unstable package in /usr found - search for experimental
+
+            # search for a qt-experimental package which is installed in your default path --> no parallel package
+            default_path=`pacman -Qq | grep -E "^qt-experimental*" | grep -v parallel`
+            if [ -n "$default_path" ]; then
+                echo "No Qt installation by friesoft has been found in /usr - I strongly advice you to use my stuff :P"
+            else
+                echo "Found Qt experimental installed in /usr default installation path"
+            fi
+        else
+            echo "Found Qt unstable installed in /usr default installation path"
+        fi
+    else
+        echo "Found Qt stable installed in /usr default installation path"
+    fi
+    ######################## DEFAULT INSTALL PATH ########################
+
+    parallel_experimental=`pacman -Qq | grep -E "^qt-experimental*" | grep parallel`
+    echo -e "\r\nFound the following experimental Qt versions installed in parallel:"
+    echo $parallel_experimental
+
+    parallel_unstable=`pacman -Qq | grep -E "^qt-unstable*" | grep parallel`
+    echo -e "\r\nFound the following unstable Qt versions installed in parallel:"
+    echo $parallel_unstable
+
+    parallel_stable=`pacman -Qq | grep -E "^qt-stable*" | grep parallel`
+    echo -e "\r\nFound the following stable Qt versions installed in parallel:"
+    echo $parallel_stable
+
+    # TODO: show a list with numbers about the installed versions and share it with the "askForUserInput" function
+    # TODO: save the list of installed packages
+    # TODO: offer option to install new (not yet installed) qt version
+    # TODO: show userfriendly strings (e.g. instead of "qt-unstable-git-parallel" show "Qt Unstable installed in /opt/qt-unstable")
+
+    #if "qt-experimental-kinetic-declarative-git"
+    #    printInstalledQtVersion $qtversioncount "Default path (/usr) - Qt Experimental kinetic declarative"
+    #fi
+    #echo -n "    (1) Default path (/usr)"
+    #echo -n "    (2) Qt Stable 4.5"
+    #echo -n "    (3) Qt Stable 4.6"
+    #echo -n "    (4) Qt Unstable (master)"
+    #echo -n "    (5) Qt Experimental - kinetic clone (head - animations)"
+    #echo -n "    (6) Qt Experimental - kinetic clone (declarativeui)"
+}
+
+printInstalledQtVersion()
+{
+    echo -n "    $1 $2"
+}
+
+askForUserInput()
+{
+    echo -n "Switch to Qt version: "
+    read -n 1 key
+
+    switchQtVersion $key
     returnvalue=$?
 
     while [ "$returnvalue" -ne "0" ]
     do
-        listQtVersions
+        askForUserInput
     done
 }
 
-function switchQtVersion()
+switchQtVersion()
 {
-    $qttargetversion=""
+    # TODO: clear PATH and LD_LIBRARY_PATH before setting again - otherwise those paths will fill up if using qt-switcher more than once
+    qttargetversion=""
     case "$1" in
         "1")
-            $qttargetversion="Default path (/usr)"
+            qttargetversion="Default path (/usr)"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/usr"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
             ;;
         "2")
-            $qttargetversion="Qt Stable 4.5"
+            qttargetversion="Qt Stable 4.5"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/opt/qt-stable-4.5"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
             ;;
         "3")
-            $qttargetversion="Qt Stable 4.6"
+            qttargetversion="Qt Stable 4.6"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/opt/qt-stable-4.6"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+            ;;
+        "4")
+            qttargetversion="Qt Unstable"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/opt/qt-unstable"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+            ;;
+        "5")
+            qttargetversion="Qt Experimental kinetic"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/opt/qt-experimental/kinetic"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+            ;;
+        "6")
+            qttargetversion="Qt Experimental kinetic - declarativeui"
+            export PATHSAVE="$PATH"
+            export LDSAVE="$LD_LIBRARY_PATH"
+            export QTDIR="/opt/qt-experimental/kinetic-declarative"
+            export PATH="$QTDIR/bin:$PATHSAVE"
+            export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
             ;;
         *)
-            echo "Wrong input! Please try again"
+            echo -e "\r\n\r\nWrong input! Please try again\r\n\r\n"
             return 1
             ;;
     esac
 
-    echo "switching qt version to `$qttargetversion`"
-
-    export PATHSAVE="$PATH"
-    export LDSAVE="$LD_LIBRARY_PATH"
-    export QTDIR="/opt/qt-experimental/kinetic-declarative"
-    export PATH="$QTDIR/bin:$PATHSAVE"
-    export LD_LIBRARY_PATH="$QTDIR/lib:$LDSAVE"
+    echo -e "\r\n\r\nSwitching Qt version to "$qttargetversion
 
     return
 }
 
-listQtVersions
+echo "Welcome to the Qt version switcher by friesoft - Have fun :-)"
 
+checkQtInstallations
+askForUserInput
+
+echo "Finished setting up your dev environment! - Have fun hacking (with) Qt!"
